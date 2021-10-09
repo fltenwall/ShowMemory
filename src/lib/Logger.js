@@ -16,32 +16,35 @@ const levelMap = {
 
 Object.freeze(levelMap);
 
-function Logger(level = 2, prefix = '') {
-    this.setLevel.call(this, level);
-    this.prefix = prefix;
-    this.levelMap = levelMap;
-}
+class Logger {
+    constructor(level = 2, prefix = ''){
+        this.setLevel.call(this, level);
+        this.prefix = prefix;
+        this.levelMap = levelMap;
+    }
 
-Logger.prototype.setLevel = function (level) {
-    if (typeof level !== 'string' && typeof level !== 'number') level = 2;
-    if (typeof level === 'string') level = levelMap[level];
-    return this.level = level;
-}
+    setLevel (level) {
+        if (typeof level !== 'string' && typeof level !== 'number') level = 2;
+        if (typeof level === 'string') level = levelMap[level];
+        return this.level = level;
+    }
 
-Logger.prototype.error = function (msg) {
-    if (this.level >= levelMap['error']) console.log(this.prefix + colors['error'](msg))
-}
+    error (msg) {
+        if (this.level >= levelMap['error']) console.log(this.prefix + colors['error'](msg))
+    }
 
-Logger.prototype.warn = function (msg) {
-    if (this.level >= levelMap['warn']) console.log(this.prefix + colors['warn'](msg))
-}
+    warn (msg) {
+        if (this.level >= levelMap['warn']) console.log(this.prefix + colors['warn'](msg))
+    }
 
-Logger.prototype.info = function (msg) {
-    if (this.level >= levelMap['info']) console.log(this.prefix + colors['info'](msg))
-}
+    info (msg) {
+        if (this.level >= levelMap['info']) console.log(this.prefix + colors['info'](msg))
+    }
 
-Logger.prototype.debug = function (msg) {
-    if (this.level >= levelMap['debug']) console.log(this.prefix + colors['debug'](msg))
+    debug (msg) {
+        if (this.level >= levelMap['debug']) console.log(this.prefix + colors['debug'](msg))
+    }
+    
 }
 
 module.exports = new Logger(2, '[Memeye] ');

@@ -7,62 +7,62 @@ const v8 = require('v8');
 const os = require('os');
 const logger = require('./Logger.js');
 
-function Collector(dashboard, { frequency = 1000 } = {}) {
-    this.dashboard = dashboard;
-    this.interval = null;
-    this.frequency = frequency;
-}
-
-Collector.prototype.stop = function () {
-    clearInterval(this.interval);
-}
-
-Collector.prototype.start = function () {
-    let that = this;
-
-    if (that.interval) {
-        console.error('Collector has been started');
-        return;
+export class Collector {
+    constructor(dashboard, { frequency = 1000 } = {}){
+        this.dashboard = dashboard;
+        this.interval = null;
+        this.frequency = frequency;
     }
 
-    that.interval = setInterval(() => {
+    stop() {
+        clearInterval(this.interval);
+    }
 
-        // collecing data
-        let processStat = process.memoryUsage();
-        let v8Stat = {
-            heap: v8.getHeapStatistics(),
-            heapSpace: v8.getHeapSpaceStatistics(),
+    start() {
+        let that = this;
+    
+        if (that.interval) {
+            console.error('Collector has been started');
+            return;
         }
-        let osStat = {
-            freeMem: os.freemem(),
-            totalMem: os.totalmem(),
-            cpus: os.cpus(),
-        }
-        let data = [
-            {
-                type: 'process',
-                value: processStat,
-            },
-            {
-                type: 'v8',
-                value: v8Stat,
-            },
-            {
-                type: 'os',
-                value: osStat
+    
+        that.interval = setInterval(() => {
+    
+            // collecing data
+            let processStat = process.memoryUsage();
+            let v8Stat = {
+                heap: v8.getHeapStatistics(),
+                heapSpace: v8.getHeapSpaceStatistics(),
             }
-        ]
-
-        // Sending data to dashboard process with IPC channel if dashboard keep on connected.
-        if (this.dashboard.connected) {
-            that.dashboard.send(data);
-        }
-
-        if (logger.level >= logger.levelMap['debug']) {
-            logger.debug(`Collector heartbeat, data collected. -- size: ${(new Buffer(JSON.stringify(data))).length}, timestamp: ${Date.now()}`);
-        }
-
-    }, that.frequency);
+            let osStat = {
+                freeMem: os.freemem(),
+                totalMem: os.totalmem(),
+                cpus: os.cpus(),
+            }
+            let data = [
+                {
+                    type: 'process',
+                    value: processStat,
+                },
+                {
+                    type: 'v8',
+                    value: v8Stat,
+                },
+                {
+                    type: 'os',
+                    value: osStat
+                }
+            ]
+    
+            // Sending data to dashboard process with IPC channel if dashboard keep on connected.
+            if (this.dashboard.connected) {
+                that.dashboard.send(data);
+            }
+    
+            if (logger.level >= logger.levelMap['debug']) {
+                logger.debug(`Collector heartbeat, data collected. -- size: ${(new Buffer(JSON.stringify(data))).length}, timestamp: ${Date.now()}`);
+            }
+    
+        }, that.frequency);
+    }
 }
-
-module.exports = Collector;
